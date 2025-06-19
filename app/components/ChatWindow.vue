@@ -1,9 +1,20 @@
 <script setup lang="ts">
-const { chat, messages, sendMessage } = useChat();
+import { ChatInput, UButton } from "#components";
+import type { ChatMessage, Chat } from "../types";
+
+const props = defineProps<{
+  messages: ChatMessage[];
+  chat: Chat;
+}>();
+
+const emit = defineEmits(["send-message"]);
+// const { chat, messages, sendMessage } = useChat();
+const { showScrollButton, scrollToBottom, pinToBottom } = useChatScroll();
 
 function handleSendMessage(message: string) {
-  sendMessage(message);
+  emit("send-message", message);
 }
+watch(() => props.messages, pinToBottom, { deep: true });
 </script>
 
 <template>
@@ -22,6 +33,7 @@ function handleSendMessage(message: string) {
             {{ chat?.title || "Untitled Chat" }}
           </h1>
         </div>
+
         <div class="messages-container">
           <div
             v-for="message in messages"
@@ -39,6 +51,16 @@ function handleSendMessage(message: string) {
         </div>
 
         <div class="message-form-container">
+          <div class="scroll-to-bottom-button-container">
+            <UButton
+              v-if="showScrollButton"
+              color="neutral"
+              variant="outline"
+              icon="i-heroicons-arrow-down"
+              class="rounded-full shadow-sm"
+              @click="() => scrollToBottom()"
+            />
+          </div>
           <ChatInput @send-message="handleSendMessage" />
         </div>
       </template>
@@ -57,6 +79,7 @@ function handleSendMessage(message: string) {
 .chat-container {
   max-width: 800px;
   height: 100%;
+  background-color: rgb(97, 97, 199);
 }
 
 /* ===== Header Styles ===== */
@@ -82,6 +105,7 @@ function handleSendMessage(message: string) {
   margin-bottom: 1.5rem;
   overflow-y: auto;
   padding-bottom: 8rem;
+  background-color: rgb(0, 140, 255);
 }
 
 /* ===== Message Styles ===== */
@@ -110,6 +134,7 @@ function handleSendMessage(message: string) {
   word-wrap: break-word;
   white-space: pre-wrap;
   overflow-wrap: break-word;
+  background-color: aqua;
 }
 
 /* ===== Input Form Styles ===== */
